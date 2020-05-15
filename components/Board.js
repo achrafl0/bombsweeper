@@ -46,16 +46,19 @@ export default function Board(props) {
 
   function newBoard(rows, cols, bombs) {
     // Initializing the array
-    const newData = new Array(rows).fill(
-      new Array(cols).fill({
-        flagged: false,
-        isBomb: false,
-        neighbours: 0,
-        revealed: false,
-      })
-    )
+    const newData = []
+    for (let i = 0; i < rows; i += 1) {
+      newData.push([])
+      for (let j = 0; j < cols; j += 1) {
+        newData[i][j] = {
+          flagged: false,
+          isBomb: false,
+          neighbours: 0,
+          revealed: false,
+        }
+      }
+    }
     // Planting bombs
-
     let plantedbombs = 0
     while (plantedbombs < bombs) {
       const rndi = random.int(0, rows - 1)
