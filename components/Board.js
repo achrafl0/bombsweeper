@@ -63,15 +63,17 @@ export default function Board(props) {
     while (plantedbombs < bombs) {
       const rndi = random.int(0, rows - 1)
       const rndj = random.int(0, cols - 1)
-      newData[rndi][rndj].isBomb = true
-      plantedbombs += 1
+      if (!newData[rndi][rndj].isBomb) {
+        newData[rndi][rndj].isBomb = true
+        plantedbombs += 1
+      }
     }
     // Adding data about neighbours
     for (let i = 0; i < rows; i += 1) {
       for (let j = 0; j < cols; j += 1) {
         if (!newData[i][j].isBomb) {
           const neigh = getNeighboours(i, j)
-          let count = 1
+          let count = 0
           neigh.forEach((coor) => {
             const [x, y] = coor
             if (newData[x][y].isBomb) {
@@ -82,7 +84,6 @@ export default function Board(props) {
         }
       }
     }
-    newData[0][0].neighbours = 3
     return newData
   }
   return (

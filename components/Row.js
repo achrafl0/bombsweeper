@@ -21,7 +21,7 @@ export default function Row(props) {
         return (
           <Cell
             flagged={el.flagged}
-            isBomb={el.flagged}
+            isBomb={el.isBomb}
             neighbours={el.neighbours}
             revealed={el.revealed}
             key={index}
