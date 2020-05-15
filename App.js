@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
+import Board from './components/Board'
 
 const styles = StyleSheet.create({
   container: {
@@ -7,16 +8,34 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 5,
-    borderColor: 'orange',
-    borderRadius: 20,
+    flexDirection: 'column',
   },
 })
 
 export default function App() {
+  const [numRows, setRows] = useState(9)
+  const [numCols, setCols] = useState(9)
+  const [numBomb, setBomb] = useState(20)
+  const [hasWon, setWin] = useState(false)
+  const [hasLost, setLose] = useState(false)
+
   return (
     <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
+      <Text
+        style={{
+          marginBottom: 10,
+        }}
+      >
+        Let play some Minsweeper
+      </Text>
+      <Board
+        numRows={numRows}
+        numCols={numCols}
+        numBomb={numBomb}
+        style={{
+          flexDirection: 'column',
+        }}
+      />
     </View>
   )
 }
