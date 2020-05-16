@@ -1,34 +1,45 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable no-use-before-define */
 // import libs
 import React, { useState } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Dimensions, View } from 'react-native'
 import PropTypes from 'prop-types'
 import random from 'random'
 // import componenets
-import Row from './Row'
+import Cell from './Cell'
 
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#ffffff',
     borderWidth: 2,
-    borderColor: 'orange',
-    borderRadius: 20,
-    width: '95%',
+    borderColor: '#4361ee',
+    width: '100%',
     height: '60%',
     margin: 10,
     alignItems: 'center',
     display: 'flex',
     justifyContent: 'space-around',
+    flexDirection: 'column',
+  },
+  rowContainer: {
+    alignItems: 'center',
+    display: 'flex',
+    justifyContent: 'space-around',
     flexDirection: 'row',
+    height: '100%',
   },
 })
 
 export default function Board(props) {
   const { numRows, numCols, numBomb } = props
   const [gameData, setGameData] = useState(newBoard(numRows, numCols, numBomb))
-
-  function getNeighboours(i, j) {
+  const [isLost, setLost] = useState(false)
+  const screenWidth = Math.round(Dimensions.get('window').width)
+  const screenHeight = Math.round(Dimensions.get('window').height)
+  const cellWidth = screenWidth / numCols
+  const cellHeight = (screenHeight / numRows) * 0.6
+  function getNeighbours(i, j) {
     const neigh = []
     for (let x = -1; x <= 1; x += 1) {
       for (let y = -1; y <= 1; y += 1) {
@@ -72,7 +83,7 @@ export default function Board(props) {
     for (let i = 0; i < rows; i += 1) {
       for (let j = 0; j < cols; j += 1) {
         if (!newData[i][j].isBomb) {
-          const neigh = getNeighboours(i, j)
+          const neigh = getNeighbours(i, j)
           let count = 0
           neigh.forEach((coor) => {
             const [x, y] = coor
@@ -81,15 +92,71 @@ export default function Board(props) {
             }
           })
           newData[i][j].neighbours = count
+        } else {
+          newData[i][j].neighbours = 9
         }
       }
     }
     return newData
   }
+  function lose() {
+    const newData = gameData.slice()
+    for (let i = 0; i < numRows; i += 1) {
+      for (let j = 0; j < numCols; j += 1) {
+        newData[i][j].revealed = true
+      }
+    }
+    setGameData(newData)
+    setLost(true)
+  }
+  function handlePress(i, j) {
+    if (gameData[i][j].isBomb) {
+      lose()
+    } else {
+      const newData = gameData.slice()
+      newData[i][j].revealed = true
+      if (newData[i][j].neighbours === 0) {
+        let toBeVisited = getNeighbours(i, j)
+        while (toBeVisited.length > 0) {
+          const x = toBeVisited[0][0]
+          const y = toBeVisited[0][1]
+          if (!newData[x][y].flagged && newData[x][y].neighbours === 0 && !newData[x][y].revealed){
+            getNeighbours(x,y).forEach((el) => {
+              if (!toBeVisited.includes(el)) {
+                toBeVisited.push(el)
+              }
+            })
+          }
+          newData[x][y].revealed = true
+          toBeVisited.shift()
+        }
+      }
+      setGameData(newData)
+    }
+  }
   return (
     <View style={styles.container}>
       {gameData.map((row, indexi) => {
-        return <Row row={row} key={indexi} />
+        return (
+          <View style={styles.rowContainer} key={indexi}>
+            {row.map((el, indexj) => {
+              return (
+                <Cell
+                  flagged={el.flagged}
+                  isBomb={el.isBomb}
+                  neighbours={el.neighbours}
+                  revealed={el.revealed}
+                  key={indexj}
+                  cellHeight={cellHeight}
+                  cellWidth={cellWidth}
+                  indexj={indexj}
+                  indexi={indexi}
+                  handlePress={handlePress}
+                />
+              )
+            })}
+          </View>
+        )
       })}
     </View>
   )

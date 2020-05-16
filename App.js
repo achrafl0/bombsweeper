@@ -5,28 +5,35 @@ import Board from './components/Board'
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#7209b7',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-evenly',
     flexDirection: 'column',
   },
 })
 
 export default function App() {
-  const [numRows, setRows] = useState(9)
-  const [numCols, setCols] = useState(9)
-  const [numBomb, setBomb] = useState(20)
-  const [hasWon, setWin] = useState(false)
-  const [hasLost, setLose] = useState(false)
+  const [numRows, setRows] = useState(5)
+  const [numCols, setCols] = useState(5)
+  const [numBomb, setBomb] = useState(3)
 
   return (
     <View style={styles.container}>
       <Text
         style={{
-          marginBottom: 10,
+          color: '#4cc9f0',
+          fontSize: 20,
         }}
       >
-        Let play some Minsweeper
+        Let play some Bombsweeper
+      </Text>
+      <Text
+        style={{
+          color: '#4cc9f0',
+          fontSize: 15,
+        }}
+      >
+        Remaining Bombs : 5
       </Text>
       <Board
         numRows={numRows}
