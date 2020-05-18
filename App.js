@@ -1,6 +1,7 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useRef } from 'react'
 import { StyleSheet, Text, View, Button, Animated, Dimensions, Easing } from 'react-native'
-import Board from './components/Board'
+import Board from './src/components/Board'
 
 const styles = StyleSheet.create({
   container: {
@@ -31,8 +32,7 @@ export default function App() {
   // ************ State Declaration
   const [numRows, setRows] = useState(8)
   const [numCols, setCols] = useState(8)
-  const [numBomb, setBomb] = useState(15)
-  const [isGameOver, setEndGame] = useState(false)
+  const [numBomb, setBomb] = useState(20)
   const [endGameType, setEndGameType] = useState('')
   const [remainingBombs, setRemainingBombs] = useState(numBomb)
   const [toBeReset, setReset] = useState(false)
@@ -40,7 +40,7 @@ export default function App() {
   const Ybase = Math.round(Dimensions.get('window').height)
   const translateAnim = useRef(new Animated.Value(Ybase * 1.15)).current
   const scaleAnim = useRef(new Animated.Value(1)).current
-  function inAnimation() {
+  function inAnimationGameOver() {
     Animated.sequence([
       Animated.timing(translateAnim, {
         toValue: Ybase / 2,
@@ -61,26 +61,25 @@ export default function App() {
       }),
     ]).start()
   }
-  function outAnimation() {
+  function outAnimationGameOver() {
     Animated.timing(translateAnim, {
       toValue: Ybase * 1.15,
       duration: 1000,
       useNativeDriver: true,
-      easing: Easing.out(Easing.quad),
+      easing: Easing.out(Easing.ease),
     }).start()
   }
+
   // ************ Handler Functions
   function handleEndGame(type) {
-    setEndGame(true)
     setEndGameType(type)
-    inAnimation()
+    inAnimationGameOver()
   }
   function handleRemainBombs(value) {
     setRemainingBombs(value)
   }
   function reset() {
-    setEndGame(false)
-    outAnimation()
+    outAnimationGameOver()
     setRemainingBombs(numBomb)
     setEndGameType('')
     setReset(true)
@@ -119,9 +118,10 @@ export default function App() {
           }}
         />
       </Animated.View>
+
       <Text
         style={{
-          color: '#4cc9f0',
+          color: '#1B065E',
           fontSize: 20,
         }}
       >

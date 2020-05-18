@@ -1,10 +1,9 @@
 /* eslint-disable react/no-array-index-key */
-/* eslint-disable no-use-before-define */
 // import libs
 import React, { useState, useEffect } from 'react'
 import { StyleSheet, Dimensions, View } from 'react-native'
 import PropTypes from 'prop-types'
-import random from 'random'
+import { getNeighbours, newBoard } from '../utils/utilsBoard'
 // import componenets
 import Cell from './Cell'
 
@@ -48,77 +47,19 @@ export default function Board(props) {
   const screenWidth = Math.round(Dimensions.get('window').width)
   const screenHeight = Math.round(Dimensions.get('window').height)
   const cellWidth = screenWidth / numCols
+  // We have a 0.6 factor because the board only takes 60% of the height of the screen
   const cellHeight = (screenHeight / numRows) * 0.6
   // ************ Helper functions
+  function resetBoard() {
+    setGameData(newBoard(numRows, numCols, numBomb))
+  }
   useEffect(() => {
-    if (toBeReset){
+    if (toBeReset) {
       handleReset(false)
       resetBoard()
     }
   }, [toBeReset])
 
-  function getNeighbours(i, j) {
-    const neigh = []
-    for (let x = -1; x <= 1; x += 1) {
-      for (let y = -1; y <= 1; y += 1) {
-        if (!(x === 0 && y === 0)) {
-          const newX = i + x
-          const newY = j + y
-          if (newX >= 0 && newX < numRows && newY >= 0 && newY < numCols) {
-            neigh.push([newX, newY])
-          }
-        }
-      }
-    }
-    return neigh
-  }
-  function resetBoard() {
-    setGameData(newBoard(numRows, numCols, numBomb))
-  }
-  function newBoard(rows, cols, bombs) {
-    // Initializing the array
-    const newData = []
-    for (let i = 0; i < rows; i += 1) {
-      newData.push([])
-      for (let j = 0; j < cols; j += 1) {
-        newData[i][j] = {
-          flagged: false,
-          isBomb: false,
-          neighbours: 0,
-          revealed: false,
-        }
-      }
-    }
-    // Planting bombs
-    let plantedbombs = 0
-    while (plantedbombs < bombs) {
-      const rndi = random.int(0, rows - 1)
-      const rndj = random.int(0, cols - 1)
-      if (!newData[rndi][rndj].isBomb) {
-        newData[rndi][rndj].isBomb = true
-        plantedbombs += 1
-      }
-    }
-    // Adding data about neighbours
-    for (let i = 0; i < rows; i += 1) {
-      for (let j = 0; j < cols; j += 1) {
-        if (!newData[i][j].isBomb) {
-          const neigh = getNeighbours(i, j)
-          let count = 0
-          neigh.forEach((coor) => {
-            const [x, y] = coor
-            if (newData[x][y].isBomb) {
-              count += 1
-            }
-          })
-          newData[i][j].neighbours = count
-        } else {
-          newData[i][j].neighbours = 9
-        }
-      }
-    }
-    return newData
-  }
   function revealBoard() {
     const newData = gameData.slice()
     for (let i = 0; i < numRows; i += 1) {
@@ -131,36 +72,6 @@ export default function Board(props) {
   function gameover(type) {
     revealBoard()
     handleEndGame(type)
-  }
-  // ************ Handler Functions
-  function handlePress(i, j) {
-    if (gameData[i][j].isBomb) {
-      gameover('lose')
-    } else {
-      const newData = gameData.slice()
-      newData[i][j].revealed = true
-      if (newData[i][j].flagged) {
-        newData[i][j].flagged = false
-        handleRemainBombs(remainingBombs + 1)
-      }
-      if (newData[i][j].neighbours === 0) {
-        const toBeVisited = getNeighbours(i, j)
-        while (toBeVisited.length > 0) {
-          const x = toBeVisited[0][0]
-          const y = toBeVisited[0][1]
-          if (!newData[x][y].flagged && newData[x][y].neighbours === 0 && !newData[x][y].revealed) {
-            getNeighbours(x, y).forEach((el) => {
-              if (!toBeVisited.includes(el)) {
-                toBeVisited.push(el)
-              }
-            })
-          }
-          newData[x][y].revealed = true
-          toBeVisited.shift()
-        }
-      }
-      setGameData(newData)
-    }
   }
   function checkIfWin() {
     const newData = gameData.slice()
@@ -178,6 +89,37 @@ export default function Board(props) {
     }
     if (flags === numBomb && actualBombs === numBomb) {
       gameover('win')
+    }
+  }
+  // ************ Handler Functions
+  function handlePress(i, j) {
+    if (gameData[i][j].isBomb) {
+      gameover('lose')
+    } else {
+      const newData = gameData.slice()
+      newData[i][j].revealed = true
+      if (newData[i][j].flagged) {
+        newData[i][j].flagged = false
+        handleRemainBombs(remainingBombs + 1)
+      }
+      if (newData[i][j].neighbours === 0) {
+        // We use a floodfill-like algorithm to reveal the cells
+        const toBeVisited = getNeighbours(i, j, numRows, numCols)
+        while (toBeVisited.length > 0) {
+          const x = toBeVisited[0][0]
+          const y = toBeVisited[0][1]
+          if (!newData[x][y].flagged && newData[x][y].neighbours === 0 && !newData[x][y].revealed) {
+            getNeighbours(x, y, numRows, numCols).forEach((el) => {
+              if (!toBeVisited.includes(el)) {
+                toBeVisited.push(el)
+              }
+            })
+          }
+          newData[x][y].revealed = true
+          toBeVisited.shift()
+        }
+      }
+      setGameData(newData)
     }
   }
   function handleLongPress(i, j) {

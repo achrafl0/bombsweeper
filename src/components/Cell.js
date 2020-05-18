@@ -21,12 +21,12 @@ export default function Cell(props) {
     isBomb,
     neighbours,
     revealed,
-    cellWidth,
-    cellHeight,
     indexi,
     indexj,
     handlePress,
     handleLongPress,
+    cellWidth,
+    cellHeight,
   } = props
   // ************ Style Computation
   const styleBase = { ...styles.container, width: cellWidth, height: cellHeight }
@@ -36,30 +36,30 @@ export default function Cell(props) {
     revealed: '#9B5DE5',
     flagged: '#FEE440',
   }
+  // ************ JSX Returns Helpers
   function getContent() {
+    // This function handles the content logic of the cell
     if (!revealed) {
       return {
         text: flagged ? 'F' : '',
         bgcolor: flagged ? bgColors.flagged : bgColors.unrevealed,
-        txtcolor: '#4cc9f0',
       }
     }
     if (!isBomb) {
       return {
         text: neighbours !== 0 ? neighbours : '',
         bgcolor: bgColors.revealed,
-        txtcolor: '#4cc9f0',
       }
     }
     return {
       text: 'B',
       bgcolor: bgColors.bomb,
-      txtcolor: '#4cc9f0',
     }
   }
-  // ************ JSX Returns
   function renderHelper() {
-    const { text, bgcolor, txtcolor } = getContent()
+    // This function handles the display logic of the cell
+    const { text, bgcolor } = getContent()
+    const txtcolor = '#4cc9f0'
     return (
       <View
         style={{
@@ -72,6 +72,7 @@ export default function Cell(props) {
     )
   }
   function renderCell() {
+    // This function handles the game logic of the cell
     if (!revealed) {
       return (
         <TouchableOpacity
@@ -93,10 +94,10 @@ Cell.propTypes = {
   isBomb: PropTypes.bool.isRequired,
   neighbours: PropTypes.number.isRequired,
   revealed: PropTypes.bool.isRequired,
-  cellWidth: PropTypes.number.isRequired,
-  cellHeight: PropTypes.number.isRequired,
   indexi: PropTypes.number.isRequired,
   indexj: PropTypes.number.isRequired,
   handlePress: PropTypes.func.isRequired,
   handleLongPress: PropTypes.func.isRequired,
+  cellWidth: PropTypes.number.isRequired,
+  cellHeight: PropTypes.number.isRequired,
 }
