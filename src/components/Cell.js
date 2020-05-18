@@ -79,6 +79,7 @@ export default function Cell(props) {
           onPress={() => handlePress(indexi, indexj)}
           onLongPress={() => handleLongPress(indexi, indexj)}
           delayLongPress={200}
+          style={{flex: 1}}
         >
           {renderHelper()}
         </TouchableOpacity>

@@ -21,6 +21,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   rowContainer: {
+    flex: 1,
     alignItems: 'center',
     display: 'flex',
     justifyContent: 'space-around',
