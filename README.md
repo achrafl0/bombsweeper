@@ -1,7 +1,7 @@
 # bombsweeper
 A simple React Native retake on the classic Minesweeper board game
 - Android : fully tested on simulator and device 
-- IOS : Should be compatible , not tested yet
+- IOS : fully tested on simulator
 ## Requirements
 - Install  ```npm```
 - Install the requirement : ```npm install```
